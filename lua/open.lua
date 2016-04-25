@@ -9,4 +9,4 @@ delete(win, '%')
 for i = 1, #results do
 	append(win, i-1, tostring(results[i]))
 end
-vis:command('w open.status')
+vis:command('w open.out')
