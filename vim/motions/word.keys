@@ -1,0 +1,3 @@
+wxexb2wxgex   /* jump back forth and delete some chars */
+/* Ex3Bx */   /* this fails because deleting the last word does not move cursor back in vis */
+
