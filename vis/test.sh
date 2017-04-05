@@ -26,9 +26,12 @@ for t in $test_files; do
 	t=${t%.in}
 	t=${t#./}
 	$VIS "$t".in < /dev/null 2> /dev/null
+	RETURN_CODE=$?
 
 	printf "%-50s" "$t"
-	if [ -e "$t".out ]; then
+	if [ $RETURN_CODE -ne 0 ]; then
+		printf "FAIL\n"
+	elif [ -e "$t".out ]; then
 		if cmp -s "$t".ref "$t".out 2> /dev/null; then
 			printf "PASS\n"
 			TESTS_OK=$((TESTS_OK + 1))
