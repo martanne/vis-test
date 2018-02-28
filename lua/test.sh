@@ -28,8 +28,10 @@ for t in $test_files; do
 	t=${t%.lua}
 	t=${t#./}
 	printf "%-30s" "$t"
-	$VIS "$t.in" < /dev/null 2> /dev/null > "$t.busted"
-
+	mkfifo infifo
+	$VIS "$t.in" <infifo 2> /dev/null > "$t.busted" &
+	for i in 1;	do sleep 0.1s; echo ":qall!"; done > infifo &
+	wait %1 && wait %2
 	if [ $? -ne 0 ]; then
 		printf "FAIL\n"
 		cat "$t.busted"
@@ -37,6 +39,7 @@ for t in $test_files; do
 		TESTS_OK=$((TESTS_OK + 1))
 		printf "OK\n"
 	fi
+	rm infifo
 done
 
 printf "Tests ok %d/%d\n" $TESTS_OK $TESTS_RUN
