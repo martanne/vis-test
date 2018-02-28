@@ -61,4 +61,13 @@ describe("vis.communicate", function ()
 		local handle = vis:communicate("termtest", "sleep 1s")
 		handle:close()
 	end)
+	it("process input/stderr", function()
+	  event_assert("inputtest", "STDERR", "testdata\n")
+	  event_assert("inputtest", "EXIT", 0)
+		local handle = vis:communicate("inputtest", "read n; echo $n 1>&2")
+		handle:write("testdata\n")
+		handle:flush()
+		-- do not close handle because it is being closed automaticaly
+		-- when process quits
+	end)
 end)
