@@ -1,8 +1,7 @@
-local oldexit = os.exit
-os.exit = function(status) if status ~= 0 then oldexit(status) end end
 require 'busted.runner'()
 
 local function hardfail()
+	-- It is only way to change exitcode of vis from the QUIT event handler
 	io.popen("kill -9 $PPID", "r")
 end
 
@@ -16,6 +15,8 @@ vis.events.subscribe(vis.events.QUIT, function ()
 			print("The following events did not happened for process", k)
 			for i, vv in pairs(v) do
 				print(i, ": ", vv.etype, " - ", vv.expected)
+				print(tostring(i)..": ", vv.etype, " - ("..type(vv.expected)..")",
+				      vv.expected)
 			end
 		end
 	end
@@ -23,20 +24,20 @@ vis.events.subscribe(vis.events.QUIT, function ()
 end)
 
 vis.events.subscribe(vis.events.PROCESS_RESPONCE, function (name, d, e)
-  print(name, e, d)
 	if expected_events[name] and #(expected_events[name]) > 0 then
 		local current_event = table.remove(expected_events[name], 1)
-		print(name, current_event.etype, current_event.expected)
 		if d ~= current_event.expected or e ~= current_event.etype then
 			print("Event assert failed for process", name)
 			print("Expected event:", current_event.etype)
-			print("Got event:", e)
-			print("Expected value:", current_event.expected, type(current_event.expected))
-			print("Got value:", d, type(d))
+			print("Got event:     ", e)
+			print("Expected value:("..type(current_event.expected)..")",
+			      current_event.expected)
+			print("Got value:     ("..type(d)..")", d)
 			if #(expected_events[name]) > 0 then
 				print("Remaining expected events to be fired by process", name)
 				for i, k in pairs(expected_events[name]) do
-					print(i, ": ", k.etype, " - ", k.expected)
+					print(tostring(i)..": ", k.etype, " - ("..type(k.expected)..")",
+					      k.expected)
 				end
 			end
 			hardfail()
