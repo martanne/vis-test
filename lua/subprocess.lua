@@ -23,7 +23,7 @@ vis.events.subscribe(vis.events.QUIT, function ()
 	if failed then hardfail() end
 end)
 
-vis.events.subscribe(vis.events.PROCESS_RESPONCE, function (name, d, e)
+vis.events.subscribe(vis.events.PROCESS_RESPONSE, function (name, d, e)
 	if expected_events[name] and #(expected_events[name]) > 0 then
 		local current_event = table.remove(expected_events[name], 1)
 		if d ~= current_event.expected or e ~= current_event.etype then
