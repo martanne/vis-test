@@ -23,20 +23,24 @@ vis.events.subscribe(vis.events.QUIT, function ()
 	if failed then hardfail() end
 end)
 
-vis.events.subscribe(vis.events.PROCESS_RESPONSE, function (name, d, e)
+vis.events.subscribe(vis.events.PROCESS_RESPONSE, function (name, et, ec, eb)
 	if expected_events[name] and #(expected_events[name]) > 0 then
 		local current_event = table.remove(expected_events[name], 1)
-		if d ~= current_event.expected or e ~= current_event.etype then
+		if ec ~= current_event.expected_code or eb ~= current_event.expected_buffer or et ~= current_event.etype then
 			print("Event assert failed for process", name)
-			print("Expected event:", current_event.etype)
-			print("Got event:     ", e)
-			print("Expected value:("..type(current_event.expected)..")",
-			      current_event.expected)
-			print("Got value:     ("..type(d)..")", d)
+			print("Got event type:     ("..type(et)..")", et)
+			print("Expected event type:", current_event.etype)
+			print("Got event code:     (", type(ec), ")", ec)
+			print("Expected code:("..type(current_event.expected_code)..")",
+			      current_event.expected_code)
+			print("Got event buffer:     (", type(eb), ")", eb)
+			print("Expected buffer:("..type(current_event.expected_buffer)..")",
+			      current_event.expected_buffer)
 			if #(expected_events[name]) > 0 then
 				print("Remaining expected events to be fired by process", name)
 				for i, k in pairs(expected_events[name]) do
-					print(tostring(i)..": ", k.etype, " - ("..type(k.expected)..")",
+					print(tostring(i)..": ",
+					      k.etype, " - ("..tostring(k.expected_code) .. ", " .. k.expected_buffer..")",
 					      k.expected)
 				end
 			end
@@ -45,25 +49,29 @@ vis.events.subscribe(vis.events.PROCESS_RESPONSE, function (name, d, e)
 	end
 end)
 
-local function event_assert(name, eventtype, expected)
+local function event_assert(name, eventtype, expected_code, expected_buffer)
 	if not expected_events[name] then expected_events[name] = {} end
-	table.insert(expected_events[name], {etype = eventtype, expected = expected})
+	table.insert(expected_events[name], {
+		etype = eventtype,
+		expected_code = expected_code,
+		expected_buffer = expected_buffer
+	})
 end
 
 describe("vis.communicate", function ()
 	it("process creation", function ()
-		event_assert("starttest", "STDOUT", "testanswer\n")
-		event_assert("starttest", "EXIT", 0)
+		event_assert("starttest", "STDOUT", 0, "testanswer\n")
+		event_assert("starttest", "EXIT", 0, "")
 		vis:communicate("starttest", "echo testanswer")
 	end)
 	it("process termination", function()
-	  event_assert("termtest", "SIGNAL", 15)
+		event_assert("termtest", "SIGNAL", 15, "")
 		local handle = vis:communicate("termtest", "sleep 1s")
 		handle:close()
 	end)
 	it("process input/stderr", function()
-	  event_assert("inputtest", "STDERR", "testdata\n")
-	  event_assert("inputtest", "EXIT", 0)
+		event_assert("inputtest", "STDERR", 0, "testdata\n")
+		event_assert("inputtest", "EXIT", 0, "")
 		local handle = vis:communicate("inputtest", "read n; echo $n 1>&2")
 		handle:write("testdata\n")
 		handle:flush()
