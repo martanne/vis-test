@@ -27,14 +27,14 @@ vis.events.subscribe(vis.events.PROCESS_RESPONSE, function (name, et, ec, eb)
 	if expected_events[name] and #(expected_events[name]) > 0 then
 		local current_event = table.remove(expected_events[name], 1)
 		if ec ~= current_event.expected_code or eb ~= current_event.expected_buffer or et ~= current_event.etype then
-			print("Event assert failed for process", name)
-			print("Got event type:     ("..type(et)..")", et)
-			print("Expected event type:", current_event.etype)
-			print("Got event code:     (", type(ec), ")", ec)
-			print("Expected code:("..type(current_event.expected_code)..")",
+			print("Event assert failed for process:", name)
+			print("Got event type:", "("..type(et)..")", et)
+			print("Expected:", "("..type(current_event.etype)..")", current_event.etype)
+			print("Got event code:", "(", type(ec), ")", ec)
+			print("Expected:", "("..type(current_event.expected_code)..")",
 			      current_event.expected_code)
-			print("Got event buffer:     (", type(eb), ")", eb)
-			print("Expected buffer:("..type(current_event.expected_buffer)..")",
+			print("Got event buffer:", "(", type(eb), ")", eb)
+			print("Expected:", "("..type(current_event.expected_buffer)..")",
 			      current_event.expected_buffer)
 			if #(expected_events[name]) > 0 then
 				print("Remaining expected events to be fired by process", name)
