@@ -6,7 +6,7 @@ io.stderr = io.stdout
 
 -- make sure we gracefully terminate, cleanup terminal state etc.
 os.exit = function(status)
-	vis:exit(status)
+	if status ~= 0 then vis:exit(status) end
 end
 
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)
@@ -24,5 +24,4 @@ vis.events.subscribe(vis.events.WIN_OPEN, function(win)
 			return
 		end
 	end
-	vis:exit(0)
 end)
