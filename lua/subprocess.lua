@@ -1,8 +1,8 @@
 require 'busted.runner'()
 
 local function hardfail()
-	-- It is only way to change exitcode of vis from the QUIT event handler
-	io.popen("kill -9 $PPID", "r")
+	-- It is only way to notify about the failure from the QUIT event handler
+	print('TEST FAILED')
 end
 
 local expected_events = {}
@@ -14,9 +14,8 @@ vis.events.subscribe(vis.events.QUIT, function ()
 			failed = true
 			print("The following events did not happened for process", k)
 			for i, vv in pairs(v) do
-				print(i, ": ", vv.etype, " - ", vv.expected)
-				print(tostring(i)..": ", vv.etype, " - ("..type(vv.expected)..")",
-				      vv.expected)
+				print(tostring(i)..": ",
+					vv.etype, " - ("..tostring(vv.expected_code) .. ", " .. tostring(vv.expected_buffer)..")")
 			end
 		end
 	end
@@ -40,8 +39,7 @@ vis.events.subscribe(vis.events.PROCESS_RESPONSE, function (name, et, ec, eb)
 				print("Remaining expected events to be fired by process", name)
 				for i, k in pairs(expected_events[name]) do
 					print(tostring(i)..": ",
-					      k.etype, " - ("..tostring(k.expected_code) .. ", " .. k.expected_buffer..")",
-					      k.expected)
+					      k.etype, " - ("..tostring(k.expected_code) .. ", " .. tostring(k.expected_buffer)..")")
 				end
 			end
 			hardfail()

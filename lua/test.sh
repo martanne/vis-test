@@ -30,8 +30,8 @@ for t in $test_files; do
 	printf "%-30s" "$t"
 	mkfifo infifo
 	$VIS "$t.in" <infifo 2> /dev/null > "$t.busted" &
-	for i in 1;	do sleep 0.1s; echo ":qall!"; done > infifo &
-	wait %1 && wait %2
+	for i in 1;	do sleep 0.05; echo ":qall!"; done > infifo &
+	wait %1 && wait %2 && ! grep -o 'TEST FAILED' "$t.busted" &> /dev/null
 	if [ $? -ne 0 ]; then
 		printf "FAIL\n"
 		cat "$t.busted"
