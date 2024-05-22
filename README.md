@@ -1,3 +1,7 @@
+**ATTENTION**: This repository will no longer be updated! Please
+submit patches directly to [vis](https://github.com/martanne/vis)
+instead!
+
 Testing Infrastructure for Vis
 ------------------------------
 
